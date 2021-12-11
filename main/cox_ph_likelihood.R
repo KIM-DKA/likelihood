@@ -95,15 +95,22 @@ cox_ph <- function(formula,data){
   
   # Fisher Scoring Algorithm 
   
+  beta <- optim(c(rep(0,dim(X)[2])),log_lik, control = list(maxit = 1000),hessian=TRUE)
+  se <- sqrt(diag(solve(beta$hessian)))
   
-  return(optim(c(rep(0,dim(X)[2])),log_lik, control = list(maxit = 1000)))
+  return(list('beta'=beta$par,'se'=se))
+  
     
 }
   
   
 
-cox_ph(surv(futime,fustat) ~ age+resid.ds,data=ovarian)
+result <- cox_ph(surv(futime,fustat) ~ age+resid.ds,data=ovarian)
+
+result$beta
+result$se
 coxph(Surv(futime,fustat) ~ age+resid.ds,data=ovarian[order(ovarian$futime),])
+
   
 
 ########################################################################################################
