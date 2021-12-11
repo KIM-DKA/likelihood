@@ -57,19 +57,22 @@ cox_ph <- function(formula,data){
   mid <- regexpr('[,]',form[2])[1]
   dt <- regexpr('[)]',form[2])[1]
   
+  
+  
   # time variable 
   times <- data[,gsub(" ","",substr(form[2],st+1,mid-1))]
-  times <- times[order(times)]
+  # times <- times[order(times)]
   
   # event variable 
   event  <- data[,gsub(" ","",substr(form[2],mid+1,dt-1))]
-  event <- event[order(times)]
+  # event <- event[order(times)]
   
   # X matrix ordered by times asc 
   
-  X <- model.matrix(formula(paste0('~',form[3])),data[order(times),])
+  X <- model.matrix(formula(paste0('~',form[3])),data)[,-1]
   
   # := risk set 
+  
   risk.set <- function(t) which(times >= t)
   
   rs <- apply(as.matrix(times[as.logical(event)]), 1, risk.set)
@@ -90,6 +93,9 @@ cox_ph <- function(formula,data){
     return(-lpl1+lpl2)
   }
   
+  # Fisher Scoring Algorithm 
+  
+  
   return(optim(c(rep(0,dim(X)[2])),log_lik, control = list(maxit = 1000)))
     
 }
@@ -97,6 +103,7 @@ cox_ph <- function(formula,data){
   
 
 cox_ph(surv(futime,fustat) ~ age+resid.ds,data=ovarian)
+coxph(Surv(futime,fustat) ~ age+resid.ds,data=ovarian[order(ovarian$futime),])
   
 
 ########################################################################################################
